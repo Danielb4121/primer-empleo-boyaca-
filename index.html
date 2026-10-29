@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <title>Primer Empleo Boyacá | Sogamoso y Alrededores</title>
+
+  <!-- Google Fonts & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#006b47",
+            "primary-container": "#00875a",
+            "on-primary": "#ffffff",
+            "primary-fixed": "#8df7c1",
+            "primary-fixed-dim": "#71dba6",
+            "on-primary-fixed": "#002113",
+            "on-primary-fixed-variant": "#005235",
+            "secondary": "#525d80",
+            "secondary-container": "#cad6ff",
+            "on-secondary-container": "#515c7f",
+            "tertiary": "#006a61",
+            "tertiary-container": "#00857a",
+            "surface": "#f8f9ff",
+            "on-surface": "#0b1c30",
+            "on-surface-variant": "#3e4942",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "surface-container": "#e5eeff",
+            "surface-container-high": "#dce9ff",
+            "surface-container-highest": "#d3e4fe",
+            "error": "#ba1a1a",
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            heading: ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css"/>
+</head>
+
+<body class="bg-surface font-sans text-on-surface antialiased min-h-screen flex flex-col justify-between selection:bg-primary-fixed selection:text-on-primary-fixed">
+
+  <!-- ================= TOP APP BAR ================= -->
+  <header class="fixed top-0 w-full z-40 pt-safe bg-surface/90 backdrop-blur-xl border-b border-surface-container-high/60 shadow-sm transition-all">
+    <div class="max-w-2xl mx-auto h-16 px-4 flex items-center justify-between gap-3">
+      <!-- Logo y Título -->
+      <div class="flex items-center gap-2.5 min-w-0 cursor-pointer" id="header-brand-btn">
+        <div class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+          <span class="material-symbols-outlined text-[24px]">school</span>
+        </div>
+        <div class="flex flex-col min-w-0">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-primary truncate font-heading">
+            Primer Empleo Boyacá
+          </span>
+          <span class="text-base font-bold text-on-surface leading-tight truncate font-heading" id="header-screen-title">
+            Explorar Ofertas
+          </span>
+        </div>
+      </div>
+
+      <!-- Icono de Estado / Perfil Rápido -->
+      <div class="flex items-center gap-2">
+        <button id="header-alerts-btn" aria-label="Notificaciones" class="relative w-10 h-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-[22px]">notifications</span>
+          <span id="header-notif-badge" class="absolute top-2 right-2 w-2.5 h-2.5 bg-primary rounded-full ring-2 ring-surface"></span>
+        </button>
+
+        <button id="header-profile-btn" aria-label="Mi Perfil" class="relative group p-0.5 rounded-full hover:ring-2 hover:ring-primary/40 transition-all">
+          <img id="header-avatar" alt="Avatar Estudiante" class="w-9 h-9 rounded-full object-cover ring-2 ring-primary/20" src=""/>
+          <span class="absolute bottom-0 right-0 w-3 h-3 bg-primary border-2 border-surface rounded-full"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT WRAPPER ================= -->
+  <main class="flex-1 w-full max-w-2xl mx-auto pt-16 pb-24 px-4 min-h-screen">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: EXPLORAR OFERTAS                   -->
+    <!-- ========================================== -->
+    <section id="view-explorar" class="view-screen pt-4 pb-6 space-y-4">
+      
+      <!-- Buscador principal -->
+      <div class="relative w-full">
+        <div class="flex items-center w-full h-12 bg-surface-container-lowest rounded-xl border border-surface-container-high/80 shadow-sm px-3.5 gap-2.5 focus-within:ring-2 focus-within:ring-primary/40 focus-within:border-primary transition-all">
+          <span class="material-symbols-outlined text-primary text-[22px] shrink-0">search</span>
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Buscar por cargo, empresa o área (ej. Soporte, Auxiliar...)"
+            class="w-full bg-transparent text-on-surface text-sm placeholder:text-on-surface-variant/70 focus:outline-none"
+          />
+          <button id="clear-search-btn" type="button" aria-label="Limpiar búsqueda" class="hidden text-on-surface-variant hover:text-on-surface p-1 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Banner de bienvenida regional -->
+      <div class="relative overflow-hidden bg-gradient-to-br from-surface-container via-surface-container-low to-secondary-container/40 rounded-2xl p-4 shadow-sm border border-surface-container-high/50">
+        <div class="flex items-start gap-3 relative z-10">
+          <div class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+            <span class="material-symbols-outlined text-[22px]">rocket_launch</span>
+          </div>
+          <div class="flex-1 min-w-0 pr-1">
+            <div class="flex items-center gap-1.5">
+              <h2 class="font-heading font-bold text-base text-on-surface">Oportunidades Sin Experiencia</h2>
+              <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+            </div>
+            <p class="text-xs text-on-surface-variant mt-0.5 leading-snug">
+              Vacantes en <strong>Sogamoso y alrededores</strong> pensadas para estudiantes y recién graduados. Cero barreras laborales.
+            </p>
+          </div>
+        </div>
+        <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-primary-fixed/30 pointer-events-none blur-xl"></div>
+      </div>
+
+      <!-- Carrusel de Filtros Rápidos (Chips) -->
+      <div class="w-full overflow-x-auto no-scrollbar -mx-4 px-4 py-1">
+        <div class="flex items-center gap-2 whitespace-nowrap min-w-max" id="filter-chips-container">
+          <button class="filter-chip active flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-primary text-on-primary text-xs font-semibold shadow-sm transition-all active:scale-95" data-filter="all">
+            <span class="material-symbols-outlined text-[16px]">check</span>
+            <span>Todas</span>
+          </button>
+          <button class="filter-chip flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-primary-fixed text-on-primary-fixed text-xs font-semibold shadow-sm transition-all hover:bg-primary-fixed-dim active:scale-95" data-filter="no_exp">
+            <span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+            <span>0 Experiencia Requerida</span>
+          </button>
+          <button class="filter-chip flex items-center h-8 px-3 rounded-full bg-surface-container-lowest border border-surface-container-high text-on-surface text-xs font-medium transition-all hover:bg-surface-container active:scale-95" data-filter="medio_tiempo">
+            Medio tiempo
+          </button>
+          <button class="filter-chip flex items-center h-8 px-3 rounded-full bg-surface-container-lowest border border-surface-container-high text-on-surface text-xs font-medium transition-all hover:bg-surface-container active:scale-95" data-filter="practicas">
+            Pasantías / Prácticas
+          </button>
+          <div class="h-4 w-[1px] bg-surface-container-highest mx-0.5"></div>
+          <button class="filter-chip flex items-center gap-1 h-8 px-3 rounded-full bg-surface-container-low text-secondary text-xs font-medium transition-all hover:bg-surface-container active:scale-95" data-filter="sogamoso_centro">
+            <span class="material-symbols-outlined text-[15px]">apartment</span>
+            <span>Sogamoso Centro</span>
+          </button>
+          <button class="filter-chip flex items-center gap-1 h-8 px-3 rounded-full bg-surface-container-low text-secondary text-xs font-medium transition-all hover:bg-surface-container active:scale-95" data-filter="nobsa">
+            <span class="material-symbols-outlined text-[15px]">factory</span>
+            <span>Sector Industrial / Nobsa</span>
+          </button>
+          <button class="filter-chip flex items-center gap-1 h-8 px-3 rounded-full bg-surface-container-low text-secondary text-xs font-medium transition-all hover:bg-surface-container active:scale-95" data-filter="remoto">
+            <span class="material-symbols-outlined text-[15px]">laptop_mac</span>
+            <span>Remoto / Híbrido</span>
+          </button>
+          <button class="filter-chip flex items-center gap-1 h-8 px-3 rounded-full bg-surface-container text-on-surface text-xs font-medium transition-all hover:bg-surface-container-high active:scale-95" data-filter="area_ingenieria">
+            <span>Ingeniería / TI</span>
+          </button>
+          <button class="filter-chip flex items-center gap-1 h-8 px-3 rounded-full bg-surface-container text-on-surface text-xs font-medium transition-all hover:bg-surface-container-high active:scale-95" data-filter="area_admin">
+            <span>Administración</span>
+          </button>
+          <button class="filter-chip flex items-center gap-1 h-8 px-3 rounded-full bg-surface-container text-on-surface text-xs font-medium transition-all hover:bg-surface-container-high active:scale-95" data-filter="area_servicio">
+            <span>Atención al Cliente</span>
+          </button>
+          <button class="filter-chip flex items-center gap-1 h-8 px-3 rounded-full bg-surface-container text-on-surface text-xs font-medium transition-all hover:bg-surface-container-high active:scale-95" data-filter="area_tutoria">
+            <span>Educación / Tutorías</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de estado del feed -->
+      <div class="flex items-center justify-between pt-1 px-1">
+        <div class="flex items-center gap-2">
+          <span class="font-heading font-bold text-base text-on-surface">Vacantes Disponibles</span>
+          <span id="jobs-count-badge" class="px-2 py-0.5 rounded-full bg-primary text-on-primary text-xs font-bold font-heading">
+            6
+          </span>
+        </div>
+        <span class="text-xs text-secondary font-medium flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          Boyacá Activa
+        </span>
+      </div>
+
+      <!-- Feed de ofertas laborales -->
+      <div id="jobs-feed-container" class="space-y-4">
+        <!-- Renderizado dinámicamente con JavaScript -->
+      </div>
+
+      <!-- Estado vacío para búsquedas sin resultados -->
+      <div id="jobs-empty-state" class="hidden flex-col items-center justify-center p-8 text-center bg-surface-container-lowest rounded-2xl border border-surface-container-high/60">
+        <div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant mb-3">
+          <span class="material-symbols-outlined text-[28px]">search_off</span>
+        </div>
+        <h3 class="font-heading font-bold text-base text-on-surface">No encontramos vacantes con ese criterio</h3>
+        <p class="text-xs text-on-surface-variant mt-1 max-w-xs">
+          Intenta buscar otra palabra clave o selecciona "Todas" en los filtros superiores.
+        </p>
+        <button id="reset-filters-btn" class="mt-4 px-4 py-2 bg-primary text-on-primary rounded-xl text-xs font-semibold hover:bg-primary-container transition-all">
+          Ver todas las vacantes
+        </button>
+      </div>
+
+      <!-- Tarjeta informativa de proyecto UPTC / Grupo 35 -->
+      <div class="p-3.5 bg-surface-container-lowest rounded-xl border border-surface-container-high/60 text-center">
+        <p class="text-[11px] text-on-surface-variant">
+          Proyecto académico Grupo 35 • Universidad Pedagógica y Tecnológica de Colombia (UPTC Sogamoso)
+        </p>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: DETALLE DE VACANTE                 -->
+    <!-- ========================================== -->
+    <section id="view-detalle" class="view-screen hidden pt-2 pb-6 space-y-4">
+      
+      <!-- Barra superior de navegación interna -->
+      <div class="flex items-center justify-between pb-1">
+        <button id="btn-back-detail" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-surface-container text-on-surface hover:bg-surface-container-high active:scale-95 transition-all text-xs font-semibold">
+          <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+          <span>Volver al listado</span>
+        </button>
+        <button id="detail-share-btn" class="w-9 h-9 rounded-xl bg-surface-container-lowest border border-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center active:scale-95 transition-all" title="Compartir vacante">
+          <span class="material-symbols-outlined text-[20px]">share</span>
+        </button>
+      </div>
+
+      <!-- Trust Badge: Oportunidad Juvenil Verificada -->
+      <div class="bg-primary-fixed/20 p-3.5 rounded-xl flex items-center justify-between gap-3 shadow-sm border border-primary-fixed/40">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary shrink-0 shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">verified</span>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-primary font-heading tracking-tight">Oportunidad Juvenil Verificada</p>
+            <p class="text-[11px] text-on-surface-variant">Sin barreras ni exigencia de experiencia previa</p>
+          </div>
+        </div>
+        <span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-[10px] font-extrabold uppercase shrink-0">
+          100% Sugamuxi
+        </span>
+      </div>
+
+      <!-- Tarjeta de Cabecera de la Vacante -->
+      <div class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-surface-container-high/60 space-y-3.5">
+        <div class="flex items-start gap-3.5">
+          <div class="w-13 h-13 w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center shrink-0 overflow-hidden shadow-inner">
+            <img id="detail-company-logo" class="w-full h-full object-cover" src="" alt="Logo Empresa"/>
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold font-heading mb-1">
+              Sin experiencia previa
+            </span>
+            <h2 id="detail-title" class="font-heading font-extrabold text-lg text-on-surface leading-snug">
+              Título de la Vacante
+            </h2>
+            <p id="detail-company" class="text-xs text-secondary font-semibold mt-0.5">
+              Empresa
+            </p>
+          </div>
+        </div>
+
+        <!-- Insignias rápidas -->
+        <div class="flex flex-wrap gap-2 pt-1">
+          <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant text-xs font-medium">
+            <span class="material-symbols-outlined text-[16px] text-tertiary">location_on</span>
+            <span id="detail-location-badge">Sogamoso</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-secondary-container/50 text-on-secondary-container text-xs font-medium">
+            <span class="material-symbols-outlined text-[16px]">schedule</span>
+            <span id="detail-modality-badge">Medio tiempo</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant text-xs font-medium">
+            <span class="material-symbols-outlined text-[16px] text-primary">school</span>
+            <span>Adaptable a clases</span>
+          </div>
+        </div>
+
+        <!-- Bloque de Remuneración -->
+        <div class="p-3.5 bg-surface-container-low rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant font-heading">Asignación Mensual</p>
+            <p id="detail-salary" class="font-heading font-extrabold text-base text-primary">
+              $1.160.000 COP <span class="text-xs font-normal text-on-surface-variant">/ mes</span>
+            </p>
+          </div>
+          <div class="text-right">
+            <span id="detail-perk" class="inline-flex items-center gap-1 text-on-surface text-[11px] bg-surface-container-highest px-2.5 py-1 rounded-md font-medium">
+              <span class="material-symbols-outlined text-[14px] text-primary">commute</span>
+              Aux. transporte incluido
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestañas Interactivas: Requisitos / Funciones / Sede -->
+      <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-surface-container-high/60 overflow-hidden">
+        <!-- Controles de Pestañas -->
+        <div class="flex bg-surface-container-low p-1.5 gap-1.5" role="tablist">
+          <button id="tab-req-btn" class="tab-btn active flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">fact_check</span>
+            <span>Requisitos</span>
+          </button>
+          <button id="tab-func-btn" class="tab-btn flex-1 py-2 px-2.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">assignment</span>
+            <span>Funciones</span>
+          </button>
+          <button id="tab-loc-btn" class="tab-btn flex-1 py-2 px-2.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">storefront</span>
+            <span>Sede & Plus</span>
+          </button>
+        </div>
+
+        <!-- Contenido Pestaña 1: Requisitos -->
+        <div id="tab-content-req" class="p-4 space-y-3.5">
+          <div>
+            <h3 class="font-heading font-bold text-sm text-on-surface mb-1">Perfil Académico Sugerido</h3>
+            <p id="detail-academic" class="text-xs text-on-surface-variant leading-relaxed">
+              Dirigido a estudiantes de educación superior de Sogamoso.
+            </p>
+          </div>
+          <div class="space-y-2">
+            <h3 class="font-heading font-bold text-sm text-on-surface">Requisitos Básicos</h3>
+            <ul id="detail-requirements-list" class="space-y-2">
+              <!-- Renderizado dinámico -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Contenido Pestaña 2: Funciones -->
+        <div id="tab-content-func" class="p-4 space-y-3 hidden">
+          <h3 class="font-heading font-bold text-sm text-on-surface">Lo que aprenderás y harás en el cargo</h3>
+          <ul id="detail-duties-list" class="space-y-2.5">
+            <!-- Renderizado dinámico -->
+          </ul>
+        </div>
+
+        <!-- Contenido Pestaña 3: Sede & Plus -->
+        <div id="tab-content-loc" class="p-4 space-y-3.5 hidden">
+          <div>
+            <h3 class="font-heading font-bold text-sm text-on-surface mb-1">Ubicación y Entorno</h3>
+            <div class="flex items-start gap-2.5 p-3 rounded-xl bg-surface-container-low text-xs">
+              <span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">pin_drop</span>
+              <div class="space-y-1">
+                <p id="detail-address" class="font-semibold text-on-surface">Calle 15 Sogamoso Centro</p>
+                <p id="detail-nearby" class="text-on-surface-variant">A dos cuadras de la Plaza de la Villa</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-3 rounded-xl bg-surface-container-low text-xs space-y-1">
+            <div class="flex items-center gap-1.5 font-semibold text-on-surface">
+              <span class="material-symbols-outlined text-tertiary text-[18px]">nature_people</span>
+              <span>Ambiente Laboral Juvenil</span>
+            </div>
+            <p id="detail-atmosphere" class="text-on-surface-variant">
+              Tutor asignado y cultura orientada al aprendizaje formativo.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra flotante inferior de acciones para la vacante -->
+      <div class="sticky bottom-20 z-20 bg-surface/95 backdrop-blur-md p-3 rounded-2xl border border-surface-container-high/80 shadow-lg flex items-center gap-2.5">
+        <button id="detail-toggle-save-btn" class="w-12 h-12 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface-variant hover:text-primary flex items-center justify-center shrink-0 active:scale-95 transition-all" title="Guardar oferta">
+          <span class="material-symbols-outlined text-[24px]">bookmark</span>
+        </button>
+        <button id="detail-apply-btn" class="flex-1 h-12 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-heading font-bold text-sm shadow-md active:scale-98 transition-all flex items-center justify-center gap-2">
+          <span>Postularme con mi Perfil</span>
+          <span class="material-symbols-outlined text-[18px]">send</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: OFERTAS GUARDADAS                  -->
+    <!-- ========================================== -->
+    <section id="view-guardadas" class="view-screen hidden pt-4 pb-6 space-y-4">
+      
+      <!-- Banner de bienvenida -->
+      <div class="relative overflow-hidden rounded-2xl bg-surface-container-low p-4 shadow-sm border border-surface-container-high/60">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+            <span class="material-symbols-outlined text-[24px]">bookmark_heart</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2">
+              <h2 class="font-heading font-bold text-base text-on-surface">Tus Ofertas Guardadas</h2>
+              <span id="saved-count-pill" class="px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary text-xs font-bold font-heading shrink-0">
+                2 vacantes
+              </span>
+            </div>
+            <p class="text-xs text-on-surface-variant mt-0.5">
+              Revisa periódicamente los plazos para no perder ninguna oportunidad.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chips de Filtrado de Guardadas -->
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <button class="saved-filter-chip active flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-on-primary text-xs font-semibold shrink-0 shadow-sm transition-all" data-filter="all">
+          <span class="material-symbols-outlined text-[15px]">all_inclusive</span>
+          <span id="saved-filter-all-label">Todas (2)</span>
+        </button>
+        <button class="saved-filter-chip flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-lowest border border-surface-container-high text-on-surface text-xs font-medium shrink-0 hover:bg-surface-container transition-all" data-filter="active">
+          <span class="material-symbols-outlined text-[15px] text-primary">check_circle</span>
+          <span id="saved-filter-active-label">Disponibles</span>
+        </button>
+        <button class="saved-filter-chip flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-lowest border border-surface-container-high text-on-surface text-xs font-medium shrink-0 hover:bg-surface-container transition-all" data-filter="closing">
+          <span class="material-symbols-outlined text-[15px] text-error">timer</span>
+          <span id="saved-filter-closing-label">Próximas a cerrar</span>
+        </button>
+      </div>
+
+      <!-- Lista de ofertas guardadas -->
+      <div id="saved-jobs-container" class="space-y-4">
+        <!-- Renderizado dinámico -->
+      </div>
+
+      <!-- Estado vacío para guardadas -->
+      <div id="saved-empty-state" class="hidden flex-col items-center justify-center p-8 text-center bg-surface-container-lowest rounded-2xl border border-surface-container-high/60">
+        <div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-primary mb-3">
+          <span class="material-symbols-outlined text-[28px]">bookmark_add</span>
+        </div>
+        <h3 class="font-heading font-bold text-base text-on-surface">No tienes ofertas guardadas aún</h3>
+        <p class="text-xs text-on-surface-variant mt-1 max-w-xs">
+          Guarda las ofertas que llamen tu atención para revisarlas luego con calma o postularte.
+        </p>
+        <button id="go-explore-from-saved" class="mt-4 px-4 py-2 bg-primary text-on-primary rounded-xl text-xs font-semibold hover:bg-primary-container transition-all">
+          Explorar vacantes ahora
+        </button>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 4: PERFIL DEL ESTUDIANTE              -->
+    <!-- ========================================== -->
+    <section id="view-perfil" class="view-screen hidden pt-4 pb-6 space-y-4">
+      
+      <!-- Tarjeta Principal del Perfil -->
+      <div class="relative bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-surface-container-high/60 overflow-hidden">
+        <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-secondary-container/40 pointer-events-none blur-2xl"></div>
+        
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="relative shrink-0">
+            <img id="profile-avatar" class="w-16 h-16 rounded-2xl object-cover shadow-sm bg-surface-container ring-2 ring-primary/20" src="" alt="Foto Perfil"/>
+            <div class="absolute -bottom-1 -right-1 bg-surface-container-lowest p-1 rounded-full shadow-sm">
+              <div class="w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-[10px] text-on-primary font-bold">verified</span>
+              </div>
+            </div>
+          </div>
+          
+          <button id="btn-open-edit-profile" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-heading font-bold text-xs transition-all active:scale-95 shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">edit</span>
+            <span>Editar Perfil</span>
+          </button>
+        </div>
+
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold font-heading mb-1">
+            <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            Buscando Primer Empleo
+          </span>
+          <h2 id="profile-name" class="font-heading font-extrabold text-lg text-on-surface">Camila Rodríguez Morales</h2>
+          <p id="profile-career" class="text-xs text-on-surface-variant mt-0.5">
+            Estudiante de 8° Semestre • Ingeniería de Sistemas y Computación
+          </p>
+          <div class="flex items-center gap-1 text-on-surface-variant text-xs mt-1">
+            <span class="material-symbols-outlined text-[15px] text-primary">location_on</span>
+            <span id="profile-location">Sogamoso, Boyacá</span>
+          </div>
+        </div>
+
+        <!-- Barra de completitud -->
+        <div class="mt-4 pt-3 border-t border-surface-container-high/60">
+          <div class="flex items-center justify-between mb-1.5">
+            <div class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px] text-primary">electric_bolt</span>
+              <span class="text-xs font-heading font-semibold text-on-surface">Completitud del Perfil</span>
+            </div>
+            <span id="profile-completion-pct" class="font-heading font-bold text-xs text-primary">85%</span>
+          </div>
+          <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+            <div id="profile-completion-bar" class="h-full bg-primary rounded-full transition-all duration-500 ease-out" style="width: 85%;"></div>
+          </div>
+          <p class="text-[11px] text-on-surface-variant mt-1.5 flex items-center gap-1">
+            <span class="material-symbols-outlined text-[13px] text-tertiary">check_circle</span>
+            <span>Un perfil completo duplica tus oportunidades de contacto por empresas en Sogamoso.</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Datos Básicos -->
+      <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-surface-container-high/60 space-y-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-[20px]">person_pin</span>
+          </div>
+          <h3 class="font-heading font-bold text-sm text-on-surface">Datos de Contacto y Disponibilidad</h3>
+        </div>
+
+        <div class="grid grid-cols-1 gap-2 text-xs">
+          <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-surface-container-low">
+            <span class="material-symbols-outlined text-[18px] text-secondary mt-0.5">home_pin</span>
+            <div>
+              <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-wider">Ubicación Residencial</p>
+              <p id="profile-residence" class="font-semibold text-on-surface">Sogamoso, Boyacá (Barrio El Laguito)</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-surface-container-low">
+            <span class="material-symbols-outlined text-[18px] text-secondary mt-0.5">chat</span>
+            <div>
+              <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-wider">WhatsApp • Contacto Rápido</p>
+              <p id="profile-phone" class="font-semibold text-on-surface">+57 312 458 9210</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-surface-container-low">
+            <span class="material-symbols-outlined text-[18px] text-secondary mt-0.5">mail</span>
+            <div class="min-w-0">
+              <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-wider">Correo Institucional</p>
+              <p id="profile-email" class="font-semibold text-primary truncate">camila.rodriguez01@uptc.edu.co</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-primary/5 border border-primary/20">
+            <span class="material-symbols-outlined text-[18px] text-primary mt-0.5">schedule</span>
+            <div>
+              <p class="text-[10px] text-primary uppercase font-bold tracking-wider">Disponibilidad Horaria</p>
+              <p id="profile-availability" class="font-semibold text-on-surface">Medio tiempo (Tardes y sábados disponibles)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estudios Universitarios -->
+      <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-surface-container-high/60 space-y-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-[20px]">school</span>
+          </div>
+          <h3 class="font-heading font-bold text-sm text-on-surface">Formación Académica</h3>
+        </div>
+
+        <div class="p-3 rounded-xl bg-surface-container-low space-y-1 text-xs">
+          <div class="flex items-center justify-between">
+            <span id="profile-university" class="font-heading font-bold text-on-surface">UPTC Sede Sogamoso</span>
+            <span id="profile-semester-badge" class="px-2 py-0.5 bg-primary-container text-on-primary rounded-full text-[10px] font-bold">8° Semestre</span>
+          </div>
+          <p id="profile-faculty" class="text-on-surface-variant">Facultad Seccional Sogamoso</p>
+          <p id="profile-degree" class="font-medium text-secondary">Ingeniería de Sistemas y Computación</p>
+        </div>
+      </div>
+
+      <!-- Habilidades Técnicas -->
+      <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-surface-container-high/60 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+              <span class="material-symbols-outlined text-[20px]">terminal</span>
+            </div>
+            <h3 class="font-heading font-bold text-sm text-on-surface">Habilidades Técnicas</h3>
+          </div>
+        </div>
+
+        <div id="technical-skills-list" class="flex flex-wrap gap-1.5">
+          <!-- Renderizado dinámico -->
+        </div>
+
+        <!-- Input para agregar nueva habilidad técnica -->
+        <div class="flex items-center gap-2 pt-1">
+          <input 
+            type="text" 
+            id="new-tech-skill-input" 
+            placeholder="Añadir habilidad (ej. Excel, Python...)"
+            class="flex-1 bg-surface-container-low text-xs rounded-xl px-3 py-2 border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <button id="add-tech-skill-btn" class="px-3 py-2 bg-primary text-on-primary rounded-xl text-xs font-semibold hover:bg-primary-container active:scale-95 transition-all">
+            Agregar
+          </button>
+        </div>
+      </div>
+
+      <!-- Habilidades Blandas -->
+      <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-surface-container-high/60 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+              <span class="material-symbols-outlined text-[20px]">psychology</span>
+            </div>
+            <h3 class="font-heading font-bold text-sm text-on-surface">Competencias y Habilidades Blandas</h3>
+          </div>
+        </div>
+
+        <div id="soft-skills-list" class="flex flex-wrap gap-1.5">
+          <!-- Renderizado dinámico -->
+        </div>
+
+        <!-- Input para agregar nueva habilidad blanda -->
+        <div class="flex items-center gap-2 pt-1">
+          <input 
+            type="text" 
+            id="new-soft-skill-input" 
+            placeholder="Añadir competencia (ej. Liderazgo, Puntualidad...)"
+            class="flex-1 bg-surface-container-low text-xs rounded-xl px-3 py-2 border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <button id="add-soft-skill-btn" class="px-3 py-2 bg-secondary text-on-primary rounded-xl text-xs font-semibold hover:bg-secondary-container hover:text-on-secondary-container active:scale-95 transition-all">
+            Agregar
+          </button>
+        </div>
+      </div>
+
+      <!-- Créditos Grupo 35 -->
+      <div class="p-4 bg-surface-container rounded-2xl text-center space-y-1">
+        <p class="font-heading font-bold text-xs text-on-surface">Primer Empleo Boyacá • Sogamoso</p>
+        <p class="text-[11px] text-on-surface-variant">
+          Desarrollado por Grupo 35: Danna Ximena Ibañez, Liseth Bibiana Pérez, Daniel Alejandro Bonilla, Nelson Leonardo Rojas.
+        </p>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 5: AVISOS Y NOTIFICACIONES            -->
+    <!-- ========================================== -->
+    <section id="view-avisos" class="view-screen hidden pt-4 pb-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-heading font-bold text-base text-on-surface">Avisos y Novedades</h2>
+        <button id="mark-read-all-btn" class="text-xs text-primary font-semibold hover:underline">
+          Marcar todo como leído
+        </button>
+      </div>
+
+      <div id="notifications-list" class="space-y-3">
+        <!-- Renderizado dinámico -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+  <nav class="fixed bottom-0 w-full z-40 pb-safe bg-surface/90 backdrop-blur-xl border-t border-surface-container-high/60 shadow-lg">
+    <div class="max-w-2xl mx-auto h-16 px-3 flex items-center justify-around">
+      <button class="nav-item flex flex-col items-center justify-center w-16 h-12 text-primary transition-colors group" data-view="explorar">
+        <span class="material-symbols-outlined text-[24px] group-hover:scale-105 transition-transform" style="font-variation-settings: 'FILL' 1;">work</span>
+        <span class="text-[11px] font-semibold mt-0.5 tracking-tight font-heading">Explorar</span>
+      </button>
+
+      <button class="nav-item flex flex-col items-center justify-center w-16 h-12 text-on-surface-variant hover:text-primary transition-colors group relative" data-view="guardadas">
+        <span class="material-symbols-outlined text-[24px] group-hover:scale-105 transition-transform">bookmark</span>
+        <span class="text-[11px] mt-0.5 tracking-tight font-heading">Guardadas</span>
+        <span id="nav-saved-badge" class="hidden absolute top-1 right-3 w-4 h-4 bg-primary text-on-primary text-[9px] font-bold rounded-full flex items-center justify-center">2</span>
+      </button>
+
+      <button class="nav-item flex flex-col items-center justify-center w-16 h-12 text-on-surface-variant hover:text-primary transition-colors group relative" data-view="avisos">
+        <span class="material-symbols-outlined text-[24px] group-hover:scale-105 transition-transform">notifications</span>
+        <span class="text-[11px] mt-0.5 tracking-tight font-heading">Avisos</span>
+        <span id="nav-notif-dot" class="absolute top-1.5 right-4 w-2 h-2 bg-primary rounded-full"></span>
+      </button>
+
+      <button class="nav-item flex flex-col items-center justify-center w-16 h-12 text-on-surface-variant hover:text-primary transition-colors group" data-view="perfil">
+        <span class="material-symbols-outlined text-[24px] group-hover:scale-105 transition-transform">person</span>
+        <span class="text-[11px] mt-0.5 tracking-tight font-heading">Mi Perfil</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ================= MODAL: POSTULARME A VACANTE ================= -->
+  <div id="modal-apply" class="fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-surface-container-high space-y-4 animate-slide-up">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">send</span>
+          </div>
+          <div>
+            <h3 class="font-heading font-bold text-base text-on-surface">Confirmar Postulación</h3>
+            <p class="text-[11px] text-on-surface-variant">Primer Empleo Sogamoso</p>
+          </div>
+        </div>
+        <button id="close-modal-apply-btn" class="w-8 h-8 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-3 rounded-xl bg-surface-container-low space-y-1 text-xs">
+        <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-wider">Vacante seleccionada</p>
+        <p id="modal-apply-job-title" class="font-heading font-bold text-sm text-primary">Auxiliar Administrativo</p>
+        <p id="modal-apply-company" class="text-secondary font-medium">Inversiones & Comercio de Sugamuxi</p>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <p class="text-[11px] font-bold text-on-surface">Tus datos que se compartirán:</p>
+        <div class="space-y-1.5 p-3 rounded-xl border border-surface-container-high bg-surface-container-lowest">
+          <p><strong class="text-on-surface-variant">Postulante:</strong> <span id="modal-apply-name">Camila Rodríguez</span></p>
+          <p><strong class="text-on-surface-variant">Carrera:</strong> <span id="modal-apply-career">Ingeniería de Sistemas</span></p>
+          <p><strong class="text-on-surface-variant">Universidad:</strong> <span id="modal-apply-uni">UPTC Sogamoso</span></p>
+          <p><strong class="text-on-surface-variant">WhatsApp:</strong> <span id="modal-apply-phone">+57 312 458 9210</span></p>
+          <p><strong class="text-on-surface-variant">Correo:</strong> <span id="modal-apply-email">camila@uptc.edu.co</span></p>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <label for="apply-note" class="text-[11px] font-semibold text-on-surface">Mensaje de presentación (opcional):</label>
+        <textarea id="apply-note" rows="2" placeholder="Ej. Me encuentro en 8° semestre y tengo disponibilidad en las tardes..." class="w-full text-xs p-2.5 rounded-xl border border-surface-container-high bg-surface-container-low focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <button id="cancel-apply-btn" class="flex-1 py-2.5 rounded-xl bg-surface-container text-on-surface text-xs font-semibold hover:bg-surface-container-high transition-all">
+          Cancelar
+        </button>
+        <button id="confirm-apply-btn" class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary font-heading font-bold text-xs hover:bg-primary-container shadow-sm transition-all flex items-center justify-center gap-1.5">
+          <span>Enviar Postulación</span>
+          <span class="material-symbols-outlined text-[16px]">check_circle</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: EDITAR PERFIL ================= -->
+  <div id="modal-edit-profile" class="fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-md max-h-[90vh] overflow-y-auto bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-surface-container-high space-y-4 animate-slide-up">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">badge</span>
+          </div>
+          <div>
+            <h3 class="font-heading font-bold text-base text-on-surface">Editar Mi Perfil</h3>
+            <p class="text-[11px] text-on-surface-variant">Actualiza tus datos para las vacantes</p>
+          </div>
+        </div>
+        <button id="close-modal-edit-profile-btn" class="w-8 h-8 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <form id="edit-profile-form" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Nombre Completo</label>
+          <input type="text" id="edit-name" required class="w-full p-2.5 rounded-xl bg-surface-container-low border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"/>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Carrera Universitaria</label>
+          <input type="text" id="edit-career" required class="w-full p-2.5 rounded-xl bg-surface-container-low border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"/>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Universidad</label>
+            <input type="text" id="edit-university" required class="w-full p-2.5 rounded-xl bg-surface-container-low border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"/>
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Semestre Actual</label>
+            <input type="text" id="edit-semester" required class="w-full p-2.5 rounded-xl bg-surface-container-low border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"/>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Ubicación Residencial (Sogamoso / Boyacá)</label>
+          <input type="text" id="edit-location" required class="w-full p-2.5 rounded-xl bg-surface-container-low border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"/>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Número de WhatsApp</label>
+            <input type="text" id="edit-phone" required class="w-full p-2.5 rounded-xl bg-surface-container-low border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"/>
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Correo Electrónico</label>
+            <input type="email" id="edit-email" required class="w-full p-2.5 rounded-xl bg-surface-container-low border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"/>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Disponibilidad Horaria</label>
+          <input type="text" id="edit-availability" required class="w-full p-2.5 rounded-xl bg-surface-container-low border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"/>
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <button type="button" id="cancel-edit-profile-btn" class="flex-1 py-2.5 rounded-xl bg-surface-container text-on-surface text-xs font-semibold hover:bg-surface-container-high transition-all">
+            Cancelar
+          </button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary font-heading font-bold text-xs hover:bg-primary-container shadow-sm transition-all">
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= FLOATING TOAST ================= -->
+  <div id="toast-notification" class="flex items-center gap-2 px-4 py-2.5 bg-on-surface text-surface rounded-full shadow-2xl text-xs font-semibold">
+    <span id="toast-icon" class="material-symbols-outlined text-[18px] text-primary-fixed">check_circle</span>
+    <span id="toast-message">Acción completada con éxito</span>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
