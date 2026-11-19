@@ -108,14 +108,6 @@ function switchView(viewName, params = {}) {
   } else if (viewName === 'mapa') {
     initOrUpdateLeafletMap();
   }
-}
-  } else if (viewName === 'perfil') {
-    renderProfileView();
-  } else if (viewName === 'avisos') {
-    renderNotificationsView();
-  } else if (viewName === 'detalle' && params.jobId) {
-    renderDetailView(params.jobId);
-  }
 
   updateBadges();
 }
