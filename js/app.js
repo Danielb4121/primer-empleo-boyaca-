@@ -40,11 +40,11 @@ function showToast(message, icon = 'check_circle', duration = 3000) {
 // NAVEGACIÓN Y CAMBIO DE VISTAS (SPA)
 // ==========================================
 function switchView(viewName, params = {}) {
-  const views = ['explorar', 'detalle', 'guardadas', 'perfil', 'avisos'];
+  const views = ['explorar', 'detalle', 'guardadas', 'perfil', 'avisos', 'mapa'];
   if (!views.includes(viewName)) return;
 
-  // Registrar vista previa si no estamos en detalle
-  if (AppState.currentView !== 'detalle') {
+  // Registrar vista previa si no estamos en detalle ni mapa
+  if (AppState.currentView !== 'detalle' && AppState.currentView !== 'mapa') {
     AppState.previousView = AppState.currentView;
   }
   AppState.currentView = viewName;
@@ -70,7 +70,8 @@ function switchView(viewName, params = {}) {
     detalle: 'Detalle de Vacante',
     guardadas: 'Ofertas Guardadas',
     perfil: 'Mi Perfil de Estudiante',
-    avisos: 'Avisos y Novedades'
+    avisos: 'Avisos y Novedades',
+    mapa: 'Mapa de Vacantes Boyacá'
   };
   if (headerTitle) headerTitle.textContent = titles[viewName] || 'Primer Empleo Boyacá';
 
@@ -80,7 +81,7 @@ function switchView(viewName, params = {}) {
     const iconSpan = btn.querySelector('.material-symbols-outlined');
     const labelSpan = btn.querySelector('span:last-child');
 
-    if (path === viewName || (viewName === 'detalle' && path === AppState.previousView)) {
+    if (path === viewName || ((viewName === 'detalle' || viewName === 'mapa') && path === AppState.previousView)) {
       btn.classList.add('text-primary');
       btn.classList.remove('text-on-surface-variant');
       if (iconSpan) iconSpan.style.fontVariationSettings = "'FILL' 1";
@@ -98,6 +99,16 @@ function switchView(viewName, params = {}) {
     renderJobsFeed();
   } else if (viewName === 'guardadas') {
     renderSavedJobs();
+  } else if (viewName === 'perfil') {
+    renderProfileView();
+  } else if (viewName === 'avisos') {
+    renderNotificationsView();
+  } else if (viewName === 'detalle' && params.jobId) {
+    renderDetailView(params.jobId);
+  } else if (viewName === 'mapa') {
+    initOrUpdateLeafletMap();
+  }
+}
   } else if (viewName === 'perfil') {
     renderProfileView();
   } else if (viewName === 'avisos') {
@@ -198,9 +209,17 @@ function renderJobsFeed() {
               <h2 class="font-heading font-bold text-sm text-on-surface truncate leading-tight hover:text-primary transition-colors cursor-pointer" onclick="window.app.openJobDetail(${job.id})">
                 ${job.title}
               </h2>
-              <p class="text-xs text-on-surface-variant font-medium truncate mt-0.5">
-                ${job.company}
-              </p>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <p class="text-xs text-on-surface-variant font-medium truncate">
+                  ${job.company}
+                </p>
+                ${job.verified ? `
+                  <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold border border-primary/20 verified-badge-anim" title="Empresa Verificada con convenio juvenil">
+                    <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    <span>Verificada</span>
+                  </span>
+                ` : ''}
+              </div>
             </div>
           </div>
 
@@ -416,10 +435,17 @@ function renderSavedJobs() {
               <img class="w-full h-full object-cover" src="${job.logo}" alt="Logo de ${job.company}"/>
             </div>
             <div class="min-w-0">
-              <span class="text-[11px] text-on-surface-variant flex items-center gap-1 font-medium truncate">
-                ${job.company}
-                <span class="material-symbols-outlined text-[13px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
-              </span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] text-on-surface-variant flex items-center gap-1 font-medium truncate">
+                  ${job.company}
+                </span>
+                ${job.verified ? `
+                  <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[9px] font-bold border border-primary/20 verified-badge-anim" title="Empresa Verificada">
+                    <span class="material-symbols-outlined text-[11px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    <span>Verificada</span>
+                  </span>
+                ` : ''}
+              </div>
               <h3 class="font-heading font-bold text-sm text-on-surface truncate leading-tight hover:text-primary transition-colors cursor-pointer" onclick="window.app.openJobDetail(${job.id})">
                 ${job.title}
               </h3>
@@ -700,6 +726,370 @@ function closeEditProfileModal() {
 }
 
 // ==========================================
+// ==========================================
+// FEATURE INNOVADORA 1: CALENDARIO DE ENTREVISTAS (.ICS)
+// ==========================================
+function downloadInterviewCalendar(jobId) {
+  const job = Store.getJobById(jobId) || Store.getInitialJobs()[0];
+  if (!job) return;
+
+  // Fecha tentativa: mañana a las 10:00 AM COT
+  const now = new Date();
+  const interviewDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  interviewDate.setHours(10, 0, 0, 0);
+  const endDate = new Date(interviewDate.getTime() + 45 * 60 * 1000); // 45 min
+
+  const formatICSDate = (d) => {
+    return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  };
+
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Primer Empleo Boyacá//Entrevistas//ES',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:entrevista-${job.id}-${Date.now()}@primerempleoboyaca.co`,
+    `DTSTAMP:${formatICSDate(new Date())}`,
+    `DTSTART:${formatICSDate(interviewDate)}`,
+    `DTEND:${formatICSDate(endDate)}`,
+    `SUMMARY:Entrevista laboral: ${job.title} en ${job.company}`,
+    `DESCRIPTION:Recordatorio de entrevista de Primer Empleo Boyacá para el cargo ${job.title} con ${job.company}. Dirección: ${job.address || job.locationText}. Modalidad: ${job.modality}.`,
+    `LOCATION:${job.address || job.locationText}, Boyacá, Colombia`,
+    'STATUS:CONFIRMED',
+    'BEGIN:VALARM',
+    'TRIGGER:-PT30M',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:Recordatorio 30 minutos antes de tu entrevista',
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Entrevista_${job.company.replace(/[^a-zA-Z0-9]/g, '_')}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast('Recordatorio agendado y descargado (.ics)', 'event_available');
+}
+
+// ==========================================
+// FEATURE INNOVADORA 2: INTEGRACIÓN LINKEDIN
+// ==========================================
+function shareOnLinkedIn(jobId) {
+  const job = Store.getJobById(jobId);
+  if (!job) return;
+
+  const appUrl = window.location.href.split('#')[0];
+  const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(appUrl)}`;
+  window.open(shareUrl, '_blank', 'width=600,height=500');
+  showToast('Abriendo ventana para compartir en LinkedIn', 'share');
+}
+
+// ==========================================
+// FEATURE INNOVADORA 3: MAPA INTERACTIVO (LEAFLET + OSM)
+// ==========================================
+let leafletMapInstance = null;
+let leafletMarkersLayer = null;
+
+const LOCATION_COORDINATES = {
+  1: [5.7153, -72.9333], // Sogamoso Centro (Cl 15 Cra 11)
+  2: [5.7250, -72.9280], // Sogamoso Norte
+  3: [5.7725, -72.9408], // Sector Industrial Nobsa - Sogamoso
+  4: [5.7170, -72.9350], // Plaza de la Villa Sogamoso
+  5: [5.7135, -72.9295], // Sogamoso Coworking Seis de Septiembre
+  6: [5.7230, -72.9200]  // Sogamoso Santa Inés
+};
+
+function initOrUpdateLeafletMap() {
+  const mapContainer = document.getElementById('leaflet-map');
+  if (!mapContainer || typeof L === 'undefined') return;
+
+  setTimeout(() => {
+    if (!leafletMapInstance) {
+      // Centro en Sogamoso / Valle de Sugamuxi
+      leafletMapInstance = L.map('leaflet-map').setView([5.7200, -72.9300], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contribuyentes'
+      }).addTo(leafletMapInstance);
+
+      leafletMarkersLayer = L.layerGroup().addTo(leafletMapInstance);
+    } else {
+      leafletMapInstance.invalidateSize();
+    }
+
+    // Limpiar marcadores y pintar las vacantes
+    leafletMarkersLayer.clearLayers();
+    const jobs = Store.getInitialJobs();
+
+    jobs.forEach(job => {
+      const coords = LOCATION_COORDINATES[job.id] || [5.7150 + (Math.random() - 0.5) * 0.02, -72.9300 + (Math.random() - 0.5) * 0.02];
+
+      const customIcon = L.divIcon({
+        className: 'custom-leaflet-marker',
+        html: `
+          <div style="background-color: #006b47; color: white; width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,107,71,0.4); border: 2px solid white;">
+            <span class="material-symbols-outlined" style="font-size: 20px;">work</span>
+          </div>
+        `,
+        iconSize: [34, 34],
+        iconAnchor: [17, 34],
+        popupAnchor: [0, -32]
+      });
+
+      const marker = L.marker(coords, { icon: customIcon });
+
+      const popupHtml = `
+        <div style="font-family: inherit; min-width: 190px; padding: 2px;">
+          <span style="font-size: 10px; font-weight: bold; color: #006b47; text-transform: uppercase;">${job.area}</span>
+          <h4 style="font-weight: 700; font-size: 13px; margin: 2px 0; color: #0b1c30; line-height: 1.2;">${job.title}</h4>
+          <p style="font-size: 11px; color: #525d80; margin-bottom: 6px;">${job.company}</p>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <strong style="color: #006b47; font-size: 12px;">${job.salaryText}</strong>
+            <button onclick="window.app.openJobDetail(${job.id})" style="background: #006b47; color: white; border: none; padding: 4px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600;">
+              Ver detalle
+            </button>
+          </div>
+        </div>
+      `;
+
+      marker.bindPopup(popupHtml);
+      leafletMarkersLayer.addLayer(marker);
+    });
+  }, 200);
+}
+
+// ==========================================
+// FEATURE INNOVADORA 4: QUIZ DE HABILIDADES
+// ==========================================
+const QUIZ_QUESTIONS = [
+  {
+    question: "¿En qué ambiente de trabajo te sientes más productivo e inspirado?",
+    options: [
+      { text: "Resolviendo problemas técnicos, programando o analizando datos.", profile: "Tecnología e Innovación", score: "tech" },
+      { text: "Organizando procesos, presupuestos, archivos y gestión de equipos.", profile: "Gestión Administrativa y Financiera", score: "admin" },
+      { text: "Comunicándome con personas, servicio al cliente o creando contenido digital.", profile: "Comunicación y Marketing", score: "comm" }
+    ]
+  },
+  {
+    question: "¿Cuál consideras tu principal fortaleza personal?",
+    options: [
+      { text: "Pensamiento lógico y capacidad de aprender nuevas herramientas digitales rápidamente.", profile: "Tecnología e Innovación", score: "tech" },
+      { text: "Puntualidad, atención meticulosa al detalle y rigurosidad.", profile: "Gestión Administrativa y Financiera", score: "admin" },
+      { text: "Empatía, escucha activa y excelente expresión verbal o escrita.", profile: "Comunicación y Marketing", score: "comm" }
+    ]
+  },
+  {
+    question: "Si tuvieras tu primer día de trabajo ideal en Boyacá, ¿qué preferirías hacer?",
+    options: [
+      { text: "Configurar un sistema, automatizar una planilla o brindar soporte técnico de red.", profile: "Tecnología e Innovación", score: "tech" },
+      { text: "Revisar normativas, coordinar la agenda del equipo y organizar la correspondencia.", profile: "Gestión Administrativa y Financiera", score: "admin" },
+      { text: "Diseñar una campaña para redes o atender a usuarios con amabilidad.", profile: "Comunicación y Marketing", score: "comm" }
+    ]
+  }
+];
+
+let quizAnswers = [];
+let quizCurrentIndex = 0;
+
+function renderQuizStep() {
+  const container = document.getElementById('quiz-container');
+  if (!container) return;
+
+  if (quizCurrentIndex < QUIZ_QUESTIONS.length) {
+    const q = QUIZ_QUESTIONS[quizCurrentIndex];
+    container.innerHTML = `
+      <div class="space-y-3">
+        <div class="flex items-center justify-between text-xs text-on-surface-variant">
+          <span class="font-bold text-primary">Pregunta ${quizCurrentIndex + 1} de ${QUIZ_QUESTIONS.length}</span>
+          <span>Progreso: ${Math.round(((quizCurrentIndex) / QUIZ_QUESTIONS.length) * 100)}%</span>
+        </div>
+        <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+          <div class="h-full bg-primary transition-all duration-300" style="width: ${((quizCurrentIndex) / QUIZ_QUESTIONS.length) * 100}%"></div>
+        </div>
+        <h4 class="font-heading font-bold text-sm text-on-surface pt-2">${q.question}</h4>
+        <div class="space-y-2 pt-1">
+          ${q.options.map((opt, i) => `
+            <button class="quiz-option-btn w-full text-left p-3 rounded-xl border border-surface-container-high bg-surface-container-low hover:border-primary hover:bg-primary/5 active:scale-98 transition-all flex items-start gap-2.5" data-score="${opt.score}" data-profile="${opt.profile}">
+              <span class="w-5 h-5 rounded-full border border-primary/40 text-primary text-[10px] flex items-center justify-center shrink-0 mt-0.5 font-bold">${String.fromCharCode(65 + i)}</span>
+              <span class="text-xs text-on-surface leading-snug">${opt.text}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    container.querySelectorAll('.quiz-option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const score = btn.getAttribute('data-score');
+        const profile = btn.getAttribute('data-profile');
+        quizAnswers.push({ score, profile });
+        quizCurrentIndex++;
+        renderQuizStep();
+      });
+    });
+  } else {
+    // Calcular resultado
+    const counts = { tech: 0, admin: 0, comm: 0 };
+    quizAnswers.forEach(a => counts[a.score] = (counts[a.score] || 0) + 1);
+    let topProfile = 'Tecnología e Innovación';
+    let topRecArea = 'area_ingenieria';
+    let max = -1;
+    if (counts.tech > max) { max = counts.tech; topProfile = 'Ingeniería / Tecnología Junior'; topRecArea = 'area_ingenieria'; }
+    if (counts.admin > max) { max = counts.admin; topProfile = 'Gestión Administrativa y Archivo'; topRecArea = 'area_admin'; }
+    if (counts.comm > max) { max = counts.comm; topProfile = 'Marketing Digital y Atención al Cliente'; topRecArea = 'area_servicio'; }
+
+    container.innerHTML = `
+      <div class="text-center py-3 space-y-3">
+        <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary mx-auto flex items-center justify-center">
+          <span class="material-symbols-outlined text-[32px]">military_tech</span>
+        </div>
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-primary">Tu Perfil Sugerido</span>
+          <h3 class="font-heading font-extrabold text-lg text-on-surface mt-0.5">${topProfile}</h3>
+          <p class="text-xs text-on-surface-variant mt-1.5 leading-relaxed max-w-sm mx-auto">
+            ¡Felicitaciones! Tus respuestas destacan habilidades orientadas a este campo. Las empresas de Sogamoso buscan perfiles con tu entusiasmo.
+          </p>
+        </div>
+        <div class="p-3 rounded-xl bg-surface-container-low border border-primary/20 text-left space-y-1">
+          <p class="font-bold text-xs text-primary flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">verified</span>
+            Recomendación para tu postulación:
+          </p>
+          <p class="text-[11px] text-on-surface-variant">
+            Destaca tus proyectos universitarios y disponibilidad de horario flexible en tu carta de presentación.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 pt-2">
+          <button id="btn-quiz-retry" class="flex-1 py-2.5 rounded-xl bg-surface-container text-on-surface text-xs font-semibold hover:bg-surface-container-high transition-all">
+            Repetir Test
+          </button>
+          <button id="btn-quiz-filter" class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary font-heading font-bold text-xs hover:bg-primary-container transition-all">
+            Ver Vacantes Afines
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('btn-quiz-retry').addEventListener('click', () => {
+      quizAnswers = [];
+      quizCurrentIndex = 0;
+      renderQuizStep();
+    });
+
+    document.getElementById('btn-quiz-filter').addEventListener('click', () => {
+      document.getElementById('modal-quiz').classList.add('hidden');
+      document.getElementById('modal-quiz').classList.remove('flex');
+      switchView('explorar');
+      // Activar chip correspondiente
+      const chip = document.querySelector(`.filter-chip[data-filter="${topRecArea}"]`);
+      if (chip) chip.click();
+    });
+  }
+}
+
+// ==========================================
+// FEATURE INNOVADORA 5: CHATBOT IA CON GEMINI
+// ==========================================
+const CHATBOT_CONTEXT = `
+Eres "Boyacá IA", un asesor vocacional y de empleo juvenil para estudiantes y recién graduados en Sogamoso, Nobsa y Boyacá.
+Estás integrado en la plataforma "Primer Empleo Boyacá".
+Vacantes disponibles actualmente en la plataforma:
+1. Auxiliar Administrativo y Gestión Documental - Inversiones & Comercio de Sugamuxi ($1.160.000 COP/mes, Sin experiencia, Sogamoso Centro).
+2. Practicante de Sistemas / Soporte TI Junior - TechBoyacá Solutions ($1.300.000 COP/mes, Sin experiencia, Remoto/Híbrido).
+3. Asesor Junior de Servicio y Mostrador - Almacenes & Ferreterías Sugamuxi ($1.160.000 COP/mes, Sin experiencia, Sogamoso Cra 11).
+4. Auxiliar de Laboratorio y Control de Calidad Junior - Cales & Minerales de Nobsa ($1.200.000 COP/mes, Sin experiencia, Sector Industrial Nobsa).
+5. Tutor Académico Universitario en Matemáticas y Física - Academia Sugamuxi ($850.000 COP/mes, 12 hrs/semana, Sogamoso Centro).
+6. Auxiliar de Mercadeo Digital y Redes Sociales - AgroBoyacá Gourmet ($950.000 COP/mes, 100% Remoto, Sogamoso).
+
+Responde con tono motivador, amable, profesional y conciso en español. Utiliza emojis ocasionales. Si te preguntan por vacantes, sugiere las anteriores. Si te preguntan por consejos de entrevista u hoja de vida, da 2-3 puntos muy prácticos para jóvenes sin experiencia previa.
+`;
+
+async function askGeminiChatbot(userMessage) {
+  // Intentar llamada a Gemini API usando Endpoint estándar si se configura una key
+  const apiKey = localStorage.getItem('gemini_api_key') || '';
+  
+  if (apiKey) {
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `${CHATBOT_CONTEXT}\n\nPregunta del postulante: ${userMessage}` }]
+            }
+          ]
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text;
+      }
+    } catch (err) {
+      console.warn('Error llamando a Gemini API, usando respuesta inteligente local:', err);
+    }
+  }
+
+  // Fallback inteligente contextual sin requerir API key externa
+  const msgLower = userMessage.toLowerCase();
+  await new Promise(r => setTimeout(r, 600)); // Simulación de pensamiento de IA
+
+  if (msgLower.includes('sin experiencia') || msgLower.includes('cero') || msgLower.includes('0 experiencia')) {
+    return '¡Excelente pregunta! En **Primer Empleo Boyacá** el 100% de las vacantes publicadas **no exigen experiencia previa**. Por ejemplo, tienes la opción de **Auxiliar Administrativo en Sugamuxi** ($1.160.000), **Soporte TI Junior en TechBoyacá** ($1.300.000) o **Auxiliar de Laboratorio en Nobsa** ($1.200.000). ¿Te gustaría que te ayude a postular a alguna de estas?';
+  }
+
+  if (msgLower.includes('entrevista') || msgLower.includes('tip') || msgLower.includes('consejo')) {
+    return 'Aquí tienes **3 tips clave para tu primera entrevista** en empresas de Boyacá:\n1. 🎯 **Investiga la empresa:** Demuestra que conoces sus productos o servicios locales.\n2. 🌟 **Enfócate en tu potencial:** Habla de proyectos de la UPTC, puntualidad y ganas sinceras de aprender.\n3. ⏱️ **Puntualidad boyacense:** Conéctate o llega 10 minutos antes con ropa formal o casual prolija.';
+  }
+
+  if (msgLower.includes('hoja de vida') || msgLower.includes('cv') || msgLower.includes('curriculum')) {
+    return 'Si aún no tienes trayectoria laboral formal, tu CV debe resaltar:\n• **Formación actual:** Tu carrera en UPTC o institución, semestre y promedio si es alto.\n• **Habilidades blandas y técnicas:** Dominio de software (Excel, Figma, Python) y trabajo en equipo.\n• **Proyectos académicos:** Trabajos de grado, exposiciones o voluntariados.';
+  }
+
+  if (msgLower.includes('sistemas') || msgLower.includes('ti') || msgLower.includes('program') || msgLower.includes('ingenier')) {
+    return 'Para perfiles de ingeniería y TI, te recomiendo mucho la vacante de **TechBoyacá Solutions** (Soporte TI Junior / Practicante). Ofrece $1.300.000 COP/mes en modalidad semipresencial / híbrida en Sogamoso y es 100% adaptable a tus horarios de clase.';
+  }
+
+  if (msgLower.includes('nobsa') || msgLower.includes('planta') || msgLower.includes('industrial')) {
+    return 'Para el sector industrial, **Cales & Minerales de Nobsa S.A.** tiene disponible la vacante de *Auxiliar de Calidad* con ruta de transporte Nobsa-Sogamoso incluida y asignación de $1.200.000 COP.';
+  }
+
+  return `¡Hola! Con mucho gusto te oriento. En nuestra plataforma de Sogamoso y Boyacá contamos con 6 vacantes verificadas para estudiantes sin experiencia previa con horarios adaptados a tus clases. ¿Deseas tips para tu entrevista, ayuda preparando tu perfil o sugerencias de un sector específico? 🏔️`;
+}
+
+function appendChatMessage(sender, text) {
+  const container = document.getElementById('chatbot-messages');
+  if (!container) return;
+
+  const isUser = sender === 'user';
+  const msgEl = document.createElement('div');
+  msgEl.className = `flex items-start gap-2.5 max-w-[85%] ${isUser ? 'ml-auto flex-row-reverse' : ''} animate__animated animate__fadeInUp`;
+
+  msgEl.innerHTML = `
+    <div class="w-7 h-7 rounded-lg ${isUser ? 'bg-primary text-on-primary' : 'bg-primary/10 text-primary'} flex items-center justify-center shrink-0 text-xs">
+      <span class="material-symbols-outlined text-[16px]">${isUser ? 'person' : 'smart_toy'}</span>
+    </div>
+    <div class="${isUser ? 'bg-primary text-on-primary rounded-tr-none' : 'bg-surface-container-lowest border border-surface-container-high text-on-surface rounded-tl-none'} p-3 rounded-2xl shadow-sm space-y-1">
+      <p class="leading-relaxed whitespace-pre-line">${text}</p>
+    </div>
+  `;
+
+  container.appendChild(msgEl);
+  container.scrollTop = container.scrollHeight;
+}
+
 // INICIALIZACIÓN DE LA APLICACIÓN
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -922,6 +1312,122 @@ document.addEventListener('DOMContentLoaded', () => {
     renderNotificationsView();
     updateBadges();
     showToast('Todos los avisos marcados como leídos');
+  });
+
+  // ==========================================
+  // EVENTOS PARA LAS NUEVAS FUNCIONALIDADES INNOVADORAS
+  // ==========================================
+
+  // 1. Calendario de Entrevistas
+  const calendarBtn = document.getElementById('detail-calendar-btn');
+  if (calendarBtn) {
+    calendarBtn.addEventListener('click', () => {
+      downloadInterviewCalendar(AppState.currentDetailJobId);
+    });
+  }
+
+  // 2. LinkedIn Share
+  const linkedinBtn = document.getElementById('detail-linkedin-btn');
+  if (linkedinBtn) {
+    linkedinBtn.addEventListener('click', () => {
+      shareOnLinkedIn(AppState.currentDetailJobId);
+    });
+  }
+
+  // 3. Mapa Interactivo Toggle
+  const mapBtn = document.getElementById('map-toggle-btn');
+  if (mapBtn) {
+    mapBtn.addEventListener('click', () => {
+      if (AppState.currentView === 'mapa') {
+        switchView(AppState.previousView || 'explorar');
+      } else {
+        switchView('mapa');
+      }
+    });
+  }
+  const backMapBtn = document.getElementById('btn-back-map');
+  if (backMapBtn) {
+    backMapBtn.addEventListener('click', () => {
+      switchView(AppState.previousView || 'explorar');
+    });
+  }
+
+  // 4. Quiz de Habilidades Toggle & Modals
+  const quizBtn = document.getElementById('quiz-toggle-btn');
+  const quizModal = document.getElementById('modal-quiz');
+  const closeQuizBtn = document.getElementById('close-quiz-btn');
+  if (quizBtn && quizModal) {
+    quizBtn.addEventListener('click', () => {
+      quizAnswers = [];
+      quizCurrentIndex = 0;
+      renderQuizStep();
+      quizModal.classList.remove('hidden');
+      quizModal.classList.add('flex');
+    });
+  }
+  if (closeQuizBtn && quizModal) {
+    closeQuizBtn.addEventListener('click', () => {
+      quizModal.classList.add('hidden');
+      quizModal.classList.remove('flex');
+    });
+  }
+
+  // 5. Chatbot IA Toggle & Form
+  const chatbotBtn = document.getElementById('chatbot-toggle-btn');
+  const chatbotModal = document.getElementById('modal-chatbot');
+  const closeChatbotBtn = document.getElementById('close-chatbot-btn');
+  const chatbotForm = document.getElementById('chatbot-form');
+  const chatbotInput = document.getElementById('chatbot-input');
+
+  if (chatbotBtn && chatbotModal) {
+    chatbotBtn.addEventListener('click', () => {
+      chatbotModal.classList.remove('hidden');
+      chatbotModal.classList.add('flex');
+      if (chatbotInput) chatbotInput.focus();
+    });
+  }
+  if (closeChatbotBtn && chatbotModal) {
+    closeChatbotBtn.addEventListener('click', () => {
+      chatbotModal.classList.add('hidden');
+      chatbotModal.classList.remove('flex');
+    });
+  }
+  if (chatbotForm && chatbotInput) {
+    chatbotForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userText = chatbotInput.value.trim();
+      if (!userText) return;
+
+      appendChatMessage('user', userText);
+      chatbotInput.value = '';
+
+      // Indicador de "escribiendo"
+      const tempId = 'typing-' + Date.now();
+      const container = document.getElementById('chatbot-messages');
+      const typingEl = document.createElement('div');
+      typingEl.id = tempId;
+      typingEl.className = 'flex items-center gap-2 text-on-surface-variant text-[11px] p-2';
+      typingEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span> Boyacá IA está escribiendo...';
+      container.appendChild(typingEl);
+      container.scrollTop = container.scrollHeight;
+
+      const aiReply = await askGeminiChatbot(userText);
+      const typingNode = document.getElementById(tempId);
+      if (typingNode) typingNode.remove();
+
+      appendChatMessage('assistant', aiReply);
+    });
+  }
+
+  // Quick Prompts del chatbot
+  document.querySelectorAll('.quick-prompt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const prompt = btn.getAttribute('data-prompt');
+      if (chatbotInput) {
+        chatbotInput.value = prompt;
+        chatbotForm.dispatchEvent(new Event('submit'));
+      }
+    });
   });
 
   // Exponer API global en window para atributos onclick en HTML dinámico

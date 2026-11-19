@@ -100,3 +100,19 @@ h1, h2, h3, h4, .font-heading {
   color: #3e4942;
   background-color: transparent;
 }
+
+/* Micro-animación para badge de empresa verificada */
+@keyframes verified-badge-glow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(0, 107, 71, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 4px rgba(0, 107, 71, 0.15);
+  }
+}
+
+.verified-badge-anim {
+  animation: verified-badge-glow 2.5s infinite ease-in-out;
+}

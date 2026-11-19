@@ -54,6 +54,10 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 
 <body class="bg-surface font-sans text-on-surface antialiased min-h-screen flex flex-col justify-between selection:bg-primary-fixed selection:text-on-primary-fixed">
@@ -76,16 +80,33 @@
         </div>
       </div>
 
-      <!-- Icono de Estado / Perfil Rápido -->
-      <div class="flex items-center gap-2">
-        <button id="header-alerts-btn" aria-label="Notificaciones" class="relative w-10 h-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all">
-          <span class="material-symbols-outlined text-[22px]">notifications</span>
-          <span id="header-notif-badge" class="absolute top-2 right-2 w-2.5 h-2.5 bg-primary rounded-full ring-2 ring-surface"></span>
+      <!-- Icono de Estado / Herramientas / Perfil Rápido -->
+      <div class="flex items-center gap-1 sm:gap-2">
+        <!-- Mapa Interactivo -->
+        <button id="map-toggle-btn" aria-label="Ver Mapa de Ofertas" title="Mapa de Empleos Boyacá" class="w-9 h-9 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-primary active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-[20px]">map</span>
+        </button>
+
+        <!-- Quiz de Habilidades -->
+        <button id="quiz-toggle-btn" aria-label="Quiz de Habilidades" title="Test de Competencias" class="w-9 h-9 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-primary active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-[20px]">quiz</span>
+        </button>
+
+        <!-- Chatbot IA Asesor -->
+        <button id="chatbot-toggle-btn" aria-label="Asistente IA" title="Asesor Virtual Boyacá IA" class="w-9 h-9 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-primary active:scale-95 transition-all relative">
+          <span class="material-symbols-outlined text-[20px] text-primary">smart_toy</span>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full animate-ping"></span>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full"></span>
+        </button>
+
+        <button id="header-alerts-btn" aria-label="Notificaciones" class="relative w-9 h-9 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-[20px]">notifications</span>
+          <span id="header-notif-badge" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-primary rounded-full ring-2 ring-surface"></span>
         </button>
 
         <button id="header-profile-btn" aria-label="Mi Perfil" class="relative group p-0.5 rounded-full hover:ring-2 hover:ring-primary/40 transition-all">
-          <img id="header-avatar" alt="Avatar Estudiante" class="w-9 h-9 rounded-full object-cover ring-2 ring-primary/20" src=""/>
-          <span class="absolute bottom-0 right-0 w-3 h-3 bg-primary border-2 border-surface rounded-full"></span>
+          <img id="header-avatar" alt="Avatar Estudiante" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20" src=""/>
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-primary border-2 border-surface rounded-full"></span>
         </button>
       </div>
     </div>
@@ -212,12 +233,7 @@
         </button>
       </div>
 
-      <!-- Tarjeta informativa de proyecto UPTC / Grupo 35 -->
-      <div class="p-3.5 bg-surface-container-lowest rounded-xl border border-surface-container-high/60 text-center">
-        <p class="text-[11px] text-on-surface-variant">
-          Proyecto académico Grupo 35 • Universidad Pedagógica y Tecnológica de Colombia (UPTC Sogamoso)
-        </p>
-      </div>
+
     </section>
 
     <!-- ========================================== -->
@@ -231,9 +247,22 @@
           <span class="material-symbols-outlined text-[18px]">arrow_back</span>
           <span>Volver al listado</span>
         </button>
-        <button id="detail-share-btn" class="w-9 h-9 rounded-xl bg-surface-container-lowest border border-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center active:scale-95 transition-all" title="Compartir vacante">
-          <span class="material-symbols-outlined text-[20px]">share</span>
-        </button>
+        <div class="flex items-center gap-1.5">
+          <!-- Botón Agendar/Descargar Calendario -->
+          <button id="detail-calendar-btn" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-surface-container-lowest border border-surface-container-high text-on-surface-variant hover:text-primary hover:border-primary text-xs font-medium active:scale-95 transition-all" title="Agendar Recordatorio de Entrevista">
+            <span class="material-symbols-outlined text-[18px] text-primary">event</span>
+            <span class="hidden sm:inline">Calendario</span>
+          </button>
+          <!-- Botón Compartir en LinkedIn -->
+          <button id="detail-linkedin-btn" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#0077B5]/10 border border-[#0077B5]/30 text-[#0077B5] hover:bg-[#0077B5] hover:text-white text-xs font-semibold active:scale-95 transition-all" title="Compartir en LinkedIn">
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            <span class="hidden sm:inline">LinkedIn</span>
+          </button>
+          <!-- Compartir nativo/enlace -->
+          <button id="detail-share-btn" class="w-9 h-9 rounded-xl bg-surface-container-lowest border border-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center active:scale-95 transition-all" title="Compartir vacante">
+            <span class="material-symbols-outlined text-[20px]">share</span>
+          </button>
+        </div>
       </div>
 
       <!-- Trust Badge: Oportunidad Juvenil Verificada -->
@@ -647,6 +676,39 @@
         <!-- Renderizado dinámico -->
       </div>
     </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 6: MAPA INTERACTIVO REGIONAL          -->
+    <!-- ========================================== -->
+    <section id="view-mapa" class="view-screen hidden pt-2 pb-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <button id="btn-back-map" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-surface-container text-on-surface hover:bg-surface-container-high active:scale-95 transition-all text-xs font-semibold">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span>Volver</span>
+          </button>
+          <div>
+            <h2 class="font-heading font-bold text-base text-on-surface">Mapa Laboral Boyacá</h2>
+            <p class="text-[11px] text-on-surface-variant">Sogamoso, Nobsa, Duitama y alrededores</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold font-heading">
+          Leaflet + OSM
+        </span>
+      </div>
+
+      <div class="relative w-full rounded-2xl overflow-hidden border border-surface-container-high/80 shadow-md">
+        <div id="leaflet-map" class="w-full h-[420px] bg-surface-container"></div>
+      </div>
+
+      <div class="p-3 bg-surface-container-lowest rounded-xl border border-surface-container-high text-xs text-on-surface-variant space-y-1">
+        <p class="font-bold text-on-surface flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-primary text-[16px]">pin_drop</span>
+          Ubicación geográfica de oportunidades juveniles
+        </p>
+        <p>Haz clic en los marcadores verdes para ver la empresa, el rol y abrir el detalle directo de la postulación sin moverte de la app.</p>
+      </div>
+    </section>
   </main>
 
   <!-- ================= BOTTOM NAVIGATION BAR ================= -->
@@ -798,6 +860,100 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: CHATBOT IA GEMINI ================= -->
+  <div id="modal-chatbot" class="fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+    <div class="w-full max-w-lg h-[540px] max-h-[92vh] flex flex-col bg-surface-container-lowest rounded-2xl shadow-2xl border border-surface-container-high overflow-hidden animate-slide-up">
+      <!-- Header Chatbot -->
+      <div class="flex items-center justify-between p-3.5 border-b border-surface-container-high bg-surface-container-low">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm">
+            <span class="material-symbols-outlined text-[22px]">smart_toy</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h3 class="font-heading font-bold text-sm text-on-surface">Boyacá IA • Mentor de Empleo</h3>
+              <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-primary-fixed text-on-primary-fixed uppercase">Gemini</span>
+            </div>
+            <p class="text-[11px] text-on-surface-variant flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+              En línea • Pregúntame sobre vacantes, hojas de vida y entrevistas
+            </p>
+          </div>
+        </div>
+        <button id="close-chatbot-btn" class="w-8 h-8 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <!-- Mensajes del Chatbot -->
+      <div id="chatbot-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-surface text-xs">
+        <!-- Mensaje de bienvenida inicial -->
+        <div class="flex items-start gap-2.5 max-w-[85%]">
+          <div class="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[16px]">smart_toy</span>
+          </div>
+          <div class="bg-surface-container-lowest border border-surface-container-high p-3 rounded-2xl rounded-tl-none shadow-sm space-y-1">
+            <p class="font-bold text-[11px] text-primary">¡Hola! Soy tu asistente de empleo inteligente 🏔️</p>
+            <p class="text-on-surface leading-relaxed">
+              Estoy aquí para orientarte en tu primer empleo en Sogamoso y Boyacá. Puedo recomendarte vacantes acordes a tu carrera, sugerirte tips para tu entrevista o revisar cómo mejorar tu perfil. ¿Qué te gustaría saber hoy?
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prompts rápidos -->
+      <div class="px-3 py-1.5 bg-surface-container-low border-t border-surface-container-high/60 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[11px]">
+        <button class="quick-prompt-btn px-2.5 py-1 rounded-full bg-surface-container hover:bg-primary-fixed hover:text-on-primary-fixed text-on-surface-variant whitespace-nowrap transition-colors" data-prompt="¿Qué vacantes hay sin experiencia previa?">
+          🎯 Vacantes 0 experiencia
+        </button>
+        <button class="quick-prompt-btn px-2.5 py-1 rounded-full bg-surface-container hover:bg-primary-fixed hover:text-on-primary-fixed text-on-surface-variant whitespace-nowrap transition-colors" data-prompt="Dame 3 tips para mi primera entrevista laboral">
+          💡 Tips de entrevista
+        </button>
+        <button class="quick-prompt-btn px-2.5 py-1 rounded-full bg-surface-container hover:bg-primary-fixed hover:text-on-primary-fixed text-on-surface-variant whitespace-nowrap transition-colors" data-prompt="¿Cómo preparar mi hoja de vida si no tengo experiencia?">
+          📄 Hoja de vida
+        </button>
+      </div>
+
+      <!-- Barra de entrada de texto -->
+      <form id="chatbot-form" class="p-3 bg-surface-container-lowest border-t border-surface-container-high flex items-center gap-2">
+        <input 
+          type="text" 
+          id="chatbot-input" 
+          placeholder="Escribe tu consulta o pide asesoría..." 
+          class="flex-1 bg-surface-container-low text-xs rounded-xl px-3.5 py-2.5 border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"
+          autocomplete="off"
+        />
+        <button type="submit" id="chatbot-send-btn" class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center hover:bg-primary-container active:scale-95 transition-all shadow-sm shrink-0">
+          <span class="material-symbols-outlined text-[18px]">send</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: QUIZ DE HABILIDADES ================= -->
+  <div id="modal-quiz" class="fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+    <div class="w-full max-w-md max-h-[92vh] overflow-y-auto bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-surface-container-high space-y-4 animate-slide-up">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">psychology_alt</span>
+          </div>
+          <div>
+            <h3 class="font-heading font-bold text-base text-on-surface">Test de Competencias Sugamuxi</h3>
+            <p class="text-[11px] text-on-surface-variant">Descubre tus mayores fortalezas profesionales</p>
+          </div>
+        </div>
+        <button id="close-quiz-btn" class="w-8 h-8 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <div id="quiz-container" class="space-y-4 text-xs">
+        <!-- Renderizado dinámicamente con las preguntas o resultado -->
+      </div>
     </div>
   </div>
 
